@@ -1,5 +1,7 @@
 # Job Search Assistant 🎯
 
+![Job Search Assistant cover](picture/cover.png)
+
 **A multi-agent system that parses resumes, evaluates job fit, and drafts tailored cover letters — built with Google ADK + FastMCP.**
 
 *Capstone project for Kaggle's [AI Agents Intensive: Vibe Coding](https://www.kaggle.com/competitions/vibecoding-agents-capstone-project) course with Google — Concierge Agents track.*
@@ -40,6 +42,8 @@ flowchart TD
     ST -.->|"{structured_resume?}"| M
     ST -.->|"{structured_resume?}<br/>{fit_report?}"| W
 ```
+
+![Agent flow chart](picture/resum_agent_flow_chart.png)
 
 **Data flow:** the orchestrator's LLM routes each request to a specialist by reading sub-agent descriptions (LLM-driven delegation — no hard-coded routing). The parser and matcher each write their result to session state via `output_key`; downstream agents read those keys back through instruction templating. The three specialists never communicate directly — **session state is the data bus**. Adding the cover-letter writer required zero changes to the existing agents: it simply subscribes to two state keys that were already being published.
 
@@ -93,7 +97,7 @@ kaggle/
 Requires **Python 3.11+** and a free [Google AI Studio API key](https://aistudio.google.com/apikey).
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git kaggle
+git clone https://github.com/wesleyhuan/job_search_assistant.git kaggle
 cd kaggle
 
 # one shared venv for server + agent (they must use the same interpreter)
@@ -120,13 +124,13 @@ adk web
 
 Open `http://localhost:8000`, select **job_search_agent**, then try the full journey:
 
-1. `你好,你可以幫我做什麼?` — orchestrator introduces its capabilities
-2. `請解析 <absolute path to a resume file>` — watch the Events tab: transfer → `get_resume_schema` → `extract_resume_text` → `validate_resume`
+1. `Hello, what can you do for me?` — orchestrator introduces its capabilities
+2. `Parse <absolute path to a resume file>` — watch the Events tab: transfer → `get_resume_schema` → `extract_resume_text` → `validate_resume`
 3. Paste any job description — transfer → `score_skill_overlap` → four-part fit report
-4. `請根據這個職缺幫我寫一封求職信` — transfer → cover letter drafted from the resume + fit report already in session state
-5. `請解析 C:\Windows\System32\drivers\etc\hosts` — see `BLOCKED_BY_POLICY` from the security guardrail
+4. `Write a cover letter for this job` — transfer → cover letter drafted from the resume + fit report already in session state
+5. `Parse C:\Windows\System32\drivers\etc\hosts` — see `BLOCKED_BY_POLICY` from the security guardrail
 
-> The agents respond in Traditional Chinese by design (target user base); switch the language line in each agent's instruction to change this.
+> The agents mirror the user's language: write to them in English, Traditional Chinese, Japanese, etc., and each agent replies in that same language. The example prompts above are shown in English for readability.
 
 ## Known Limitations & Future Work
 
