@@ -21,6 +21,12 @@ __pycache__/
 # === ADK 本機狀態 ===
 .adk/
 
+# === 個人 / 草稿檔(不進版控) ===
+writeup_draft.md
+resume_wesley_2026_v2.docx
+# writeup 編輯時在根目錄產生的圖(picture/ 已有正式版一份)
+/resum_agent_flow_chart.png
+
 # === 作業系統 / 編輯器 ===
 .DS_Store
 Thumbs.db
