@@ -1,0 +1,28 @@
+# === 環境變數與機密 ===
+.env
+.env.*
+!.env.example
+*.key
+credentials*.json
+
+# === Python 虛擬環境 ===
+.venv/
+venv/
+env/
+
+# === Python 快取 / 編譯產物 ===
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# === ADK 本機狀態 ===
+.adk/
+
+# === 作業系統 / 編輯器 ===
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
