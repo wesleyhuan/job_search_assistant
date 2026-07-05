@@ -22,27 +22,6 @@ A conversational assistant with three specialist agents behind a coordinator:
 
 ## Architecture
 
-```mermaid
-flowchart TD
-    U([User]) <--> O[job_search_orchestrator<br/>LlmAgent · gemini-2.5-flash]
-    O -->|transfer| P[resume_parser<br/>sub-agent]
-    O -->|transfer| M[job_matcher<br/>sub-agent]
-    O -->|transfer| W[job_cover_letter_writer<br/>sub-agent · zero tools]
-
-    P --> G{{before_tool_callback<br/>path allowlist guardrail}}
-    G -->|stdio / MCP| S[FastMCP Server<br/>resume-parser]
-    S --> T1[[extract_resume_text]]
-    S --> T2[[get_resume_schema]]
-    S --> T3[[validate_resume]]
-
-    M --> F[[score_skill_overlap<br/>local function tool]]
-
-    P -.->|output_key:<br/>structured_resume| ST[(Session State)]
-    M -.->|output_key:<br/>fit_report| ST
-    ST -.->|"{structured_resume?}"| M
-    ST -.->|"{structured_resume?}<br/>{fit_report?}"| W
-```
-
 ![Agent flow chart](picture/resum_agent_flow_chart.png)
 
 **Data flow:** the orchestrator's LLM routes each request to a specialist by reading sub-agent descriptions (LLM-driven delegation — no hard-coded routing). The parser and matcher each write their result to session state via `output_key`; downstream agents read those keys back through instruction templating. The three specialists never communicate directly — **session state is the data bus**. Adding the cover-letter writer required zero changes to the existing agents: it simply subscribes to two state keys that were already being published.
