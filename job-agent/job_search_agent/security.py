@@ -39,16 +39,22 @@ def enforce_path_allowlist(
 
     base = Path(os.getenv("RESUME_ALLOWED_DIR", DEFAULT_ALLOWED_DIR)).resolve()
     raw_path = args.get("file_path", "")
-    target = Path(raw_path).expanduser().resolve()
+    try:
+        # Prevent TypeError if args.get() returns None instead of a string
+        if raw_path is None:
+            raw_path = ""
+        target = Path(raw_path).expanduser().resolve()
+    except TypeError:
+        return {"result": "BLOCKED_BY_POLICY: Invalid file path provided."}
 
     if not target.is_relative_to(base):
-        # Tell the model WHY it was blocked and what is allowed, so it can
-        # relay an actionable message to the user instead of retrying blindly.
+        # Prevent information exposure: Do not leak the absolute path of `base`
+        # Tell the model WHY it was blocked without exposing the server path
         return {
             "result": (
-                f"BLOCKED_BY_POLICY: '{raw_path}' is outside the allowed "
-                f"directory '{base}'. Ask the user to move the file into "
-                "that directory, or set RESUME_ALLOWED_DIR."
+                f"BLOCKED_BY_POLICY: The requested file is outside the allowed "
+                f"resume directory. Ask the user to provide a valid path or move "
+                "the file into the allowed directory."
             )
         }
     return None
